@@ -188,8 +188,25 @@ graph TD
 ### 6.2 セキュリティ
 ...
 
-### 6.3 その他 (文字コード、ログ等)
+### 6.3 運用・監視 (Operations & Monitoring)
+- **ログ**: ...
+- **メトリクス**: ...
+
+## 7. エラーハンドリング (Error Handling)
+> **Note**: エラー構造体の定義やErrorCode表をそのまま記載してください。
+
+### 7.1 エラー構造体
+\`\`\`go
+// Error struct definition here
+\`\`\`
+
+### 7.2 リカバリー・Circuit Breaker
 ...
+
+## 8. テスト・移行計画 (Test & Migration)
+- **Language/Environment**: ...
+- **Lint/Build**: ...
+- **Migration Strategy**: ...
 `;
 
 // ---------------------------------------------------------
