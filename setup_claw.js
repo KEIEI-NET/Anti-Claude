@@ -4,12 +4,16 @@ const readline = require('readline');
 const path = require('path');
 
 // CLI for user interaction
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-const askQuestion = (query) => new Promise(resolve => rl.question(query, resolve));
+const askQuestion = (query) => {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+    return new Promise(resolve => rl.question(query, answer => {
+        rl.close();
+        resolve(answer);
+    }));
+};
 
 console.log("\x1b[36m%s\x1b[0m", `
 🦅 Claw Setup CLI - Antigravity x Claude Code
@@ -41,12 +45,25 @@ const MODES = {
 };
 
 (async () => {
-    // 1. Select Mode
-    console.log("開発モードを選択してください (Select Development Mode):");
-    console.log(`[1] ${MODES['1'].name} \n    - ${MODES['1'].description}`);
-    console.log(`[2] ${MODES['2'].name} \n    - ${MODES['2'].description}`);
+    // 1. Select Mode via Args or Interactive
+    let modeChoice;
 
-    let modeChoice = await askQuestion("\n番号を入力してください (Enter 1 or 2) [Default: 2]: ");
+    // Check command line args (e.g. node setup_claw.js --mode=1)
+    const args = process.argv.slice(2);
+    const modeArg = args.find(arg => arg.startsWith('--mode='));
+
+    if (modeArg) {
+        modeChoice = modeArg.split('=')[1];
+        console.log(`🤖 Auto-detected mode from arguments: ${modeChoice}`);
+    } else {
+        // Interactive Mode
+        console.log("開発モードを選択してください (Select Development Mode):");
+        console.log(`[1] ${MODES['1'].name} \n    - ${MODES['1'].description}`);
+        console.log(`[2] ${MODES['2'].name} \n    - ${MODES['2'].description}`);
+
+        modeChoice = await askQuestion("\n番号を入力してください (Enter 1 or 2) [Default: 2]: ");
+    }
+
     if (!['1', '2'].includes(modeChoice.trim())) modeChoice = '2'; // Default to Deep Dive
 
     const selectedMode = MODES[modeChoice];
@@ -140,6 +157,6 @@ ${mode.workflow}
         console.log("  ✅ Dependencies ready.");
         console.log("\n\x1b[32m%s\x1b[0m", "✨ Claw Environment Ready! ✨");
         console.log(`Current Mode: ${selectedMode.name}`);
-        rl.close();
+        process.exit(0);
     });
 })();
