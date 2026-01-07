@@ -1,19 +1,14 @@
-# 🚀 Claw Kickoff (v8.0 Hardened)
+# 🚀 Claw Kickoff (v8.3)
 
-## 🏛️ Phase 1: Planning
-1. Detect technology & Create docs/design.md.
-2. Create **PLAN.md**.
+## 🏛️ Phase 1: Heavy Planning
+1. Detect Tech & Generate `docs/design.md`.
+2. Generate **PLAN.md**. WAIT for human approval.
 
 ## 🧠 Phase 2: Execution
-- NO God Files. NO shortcuts.
-- 実装完了の度に必読：
-  1. `docs/history/` へのバックアップ
-  2. `docs/design.md` の更新
-  3. `docs/specs/[Pkg]_spec.md` の更新
+- NO God Files. Use modular file splits.
+- Always run `node tools/validate_claw.js` before each milestone.
 
-## 🛑 Phase 3: Total Validation (The Gatekeeper)
-タスクを終了（あなたに報告）する前に、Antigravity（私）は必ず以下を実行しなければなりません：
-```bash
-node tools/validate_claw.js
-```
-**このスクリプトが PASS しない限り、私は「作業完了」を宣言することを禁止されます。**
+## 🕰️ Phase 3: Sync & DoD
+1. Backup: `docs/history/design_YYYYMMDD_HHMMSS.md`.
+2. Sync: Update `docs/design.md` AND all `docs/specs/*.md`.
+3. **FINAL GATE**: Validation PASS is mandatory.
