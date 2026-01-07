@@ -1,37 +1,47 @@
-# 📋 開発実行計画書: Nippou UseCase 分割 & 品質向上
+# 📋 開発実行計画書: Nippou Infrastructure (Salesforce Implementation)
 
 ## 1. 現状の課題 (Current Issues)
 
-- `internal/usecase/nippou/create.go` が 350行を超え、エラー定義・DTO・ロジックが混在している（God File）。
-- 今後のエンドポイント拡張において、エラーコードや構造体の再利用が困難。
+- `internal/domain/nippou/nippou.go` にインターフェース定義はあるが、実体がない。
+- Salesforce API との疎通、認証、エラーハンドリング（リトライ等）を抽象化して実装する必要がある。
 
 ## 2. 目標構成 (Target Architecture)
 
-`internal/usecase/nippou/` フォルダ内を以下の役割で分割する。
+`internal/infrastructure/salesforce/` フォルダを以下の役割で構成する。
 
-- `errors.go`: ユースケース層の共通エラー定義
-- `dto.go`: 入出力リクエスト・レスポンス構造体
-- `interactor.go`: ビジネスロジック実装（本体）
-- `interactor_test.go`: ユニットテスト
+- `client.go`: Salesforce REST API 共通の低レベル HTTP クライアント。
+- `models.go`: `Nippou__c` などのカスタムオブジェクトに対応する JSON 変換用構造体定義。
+- `nippou_repository.go`: `nippou.Repository` インターフェースの具象クラス実装。
+- `client_test.go`: HTTP モックを使用した疎通テスト。
 
 ## 3. 実装TODOリスト (Task Breakdown)
 
-- [x] **Task 1: 定義層の分離**
-  - [x] `errors.go` を作成し、`UseCaseError` 体系を移動。
-  - [x] `dto.go` を作成し、`CreateInput`, `CreateOutput` 構造体を移動。
-- [x] **Task 2: ロジックの再構築**
-  - [x] `create.go` を `interactor.go` にリネームし、ロジックのみを保持。
-  - [x] インポートパスの整合性を確認。
-- [x] **Task 3: テストの移行と拡充**
-  - [x] 既存の 44件のテストを `interactor_test.go` に整理。
-  - [x] モックの定義が適切に分離されているか確認。
-- [x] **Task 4: セキュリティ & 品質監査**
-  - [x] Claude Code の Security Skills を発動し、分割後のコードを再監査。
-- [x] **Task 5: 逆同期 (Reverse Sync)**
-  - [x] 最終的な構成を `docs/design.md` に反映。
+### 🏗️ Phase 1: 共通クライアントの基盤構築
+
+- [ ] **Task 1: Salesforce クライアントの実装**
+  - [ ] `client.go` の作成（Auth Header, BaseURL, HTTP Client）。
+  - [ ] 認可トークンのインジェクション機構。
+- [ ] **Task 2: エラーマッピングの定義**
+  - [ ] API エラー（401, 403, 429等）をドメイン/ユースケースエラーに変換する関数の作成。
+
+### 🚀 Phase 2: リポジトリ実装
+
+- [ ] **Task 3: Nippou__c マッピング**
+  - [ ] `models.go` に Salesforce 側のカスタムフィールドと Go 構造体のマッピングを定義。
+- [ ] **Task 4: Save メソッドの実装**
+  - [ ] `nippou_repository.go` にて、ドメインエンティティを JSON に変換し、Salesforce へ POST するロジックを実装。
+- [ ] **Task 5: Find メソッドの実装**
+  - [ ] SOQL を使ったデータの取得（FindByID, FindByDate）の実装。
+
+### 🛡️ Phase 3: 品質保証 & 同期
+
+- [ ] **Task 6: 統合テスト (Mocked)**
+  - [ ] Salesforce API のレスポンスをモックし、リポジトリ層のテストを完備する。
+- [ ] **Task 7: 逆同期 (Reverse Sync)**
+  - [ ] 最終的なインフラ構成を `docs/design.md` に反映。
 
 ## 4. 完了定義 (Definition of Done)
 
-- [ ] `go test ./internal/usecase/nippou/...` が 100% 合格すること。
-- [ ] ファイルが3つ以上に適切に分割されていること。
-- [ ] `docs/design.md` と実装が完全に同期していること。
+- [ ] `nippou.Repository` インターフェースが Salesforce 版で完全に実装されていること。
+- [ ] SOQL などのクエリロジックが安全に実装されていること。
+- [ ] 履歴バックアップ作成後、設計書が更新されていること。

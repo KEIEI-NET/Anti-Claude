@@ -87,9 +87,11 @@ validate();`;
 - **Rules**: NO God Files. Split into modules (interactor, errors, dto, etc.).
 
 ## 🕰️ Phase 3: Versioning & Reverse Sync
-1. IMPLEMENT tasks.
-2. **BACKUP**: Copy \`docs/design.md\` to \`docs/history/design_YYYYMMDD_HHMMSS.md\`.
-3. **SYNC**: Update \`docs/design.md\` with finalized code details.
+1. **IMPLEMENT**: Claude Code でタスクを完了させる。
+2. **BACKUP**: \`docs/design.md\` を \`docs/history/\` へ日時付きで退避。
+3. **SYNC (Design)**: \`docs/design.md\` を最新コードと同期。
+4. **SYNC (Spec)**: \`docs/specs/[Component]_spec.md\` を作成または最新化。 ← **MANDATORY**
+5. **VERIFY**: 全てが整合していることを確認。
 `;
 
     const DESIGN_TEMPLATE = `# [Project Name] システム詳細設計書
