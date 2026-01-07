@@ -10,29 +10,33 @@
 
 ### 🧠 Antigravity (設計 & フロントエンド)
 - **設計 & ドキュメント**:
-  - ドキュメント管理権限: **厳格 (Strict/Single Source of Truth)**
-  - 詳細な設計書(design.md)を作成し、承認を得てから開発へ進みます。
-  - **逆同期 (Reverse Sync)**: 必須 (コードの変更を仕様書へ反映)
+  - **テンプレートシステム**: `.claw/templates/` 内のテンプレートとツールを活用すること。
+  - **インポート対応**: 外部ドキュメント取り込み時は、必ず `tools/normalize_docs.js` でUTF-8化とバックアップを行うこと。
+  - **文書構成**:
+    1. **システム詳細設計書**: `docs/design.md`
+    2. **プログラム仕様書**: `docs/specs/xxx.md`
+  - **逆同期 (Reverse Sync)**: 実装変更時はドキュメントを即時更新すること。
 - **フロントエンド開発**:
-  - ユーザーインターフェース（UI）の設計と実装を行います。
+  - UI設計および実装を担当。
 - **監督**:
-  - Claude Code が生成したバックエンドコードをレビューします。
+  - バックエンドコードの厳格なレビュー。
 
 ### ⚡ Claude Code (バックエンド専門)
 - **バックエンド開発**:
-  - Antigravity の仕様に基づいて実装を行います。
-  - 制約事項: **design.md の仕様を厳守すること。**
+  - プログラム仕様書に基づいて実装を行う。
+  - 制約事項: **仕様書の完全再現**
 
 ## 3. ワークフロー
 ### Phase 0: Detailed Architecture 🏛️
-1. **Requirement Analysis**: Antigravity interviews User to define scope. (詳細ヒアリング)
-2. **Specification**: Antigravity creates detailed `design.md`. (詳細設計書の作成: ER図, API, UIフロー)
-3. **Approval**: User MUST approve `design.md` before any coding starts. (ユーザー承認後に着手)
+1. **Normalization**: Run `node tools/normalize_docs.js` to fix encoding of imported docs.
+2. **System Spec**: Antigravity creates `docs/design.md` using `design_template.md`.
+3. **Program Specs**: Create `docs/specs/[Name].md` using `program_spec_template.md`.
+4. **Approval**: User MUST approve specs before coding starts.
 
 ### Phase 1: Structured Implementation
 - **Frontend**: Antigravity implements strict component design.
-- **Backend**: Claude Code implements API strictly following the Spec.
+- **Backend**: Claude Code implements API strictly following the Program Specs.
 
 ## 4. ステータス
 - **MCP Status**: Active
-- **Sync Status**: Verified
+- **Template System**: Enabled

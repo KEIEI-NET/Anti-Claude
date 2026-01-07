@@ -12,6 +12,8 @@
   "type": "commonjs",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.1",
+    "iconv-lite": "^0.7.1",
+    "jschardet": "^3.1.4",
     "zod": "^4.3.5"
   }
 }
