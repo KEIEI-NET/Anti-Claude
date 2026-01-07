@@ -10,6 +10,10 @@
 !setup_claw.js
 !docs/
 !tools/
+!TASKS.md
+!PLAN.md
+!internal/
+
 
 
 # Note: All other files (claw.md, package.json, docs/, input_docs/, etc.) 

@@ -1,48 +1,41 @@
-# 🚀 Claw Kickoff Prompts
+# 🚀 Claw Kickoff Prompts (v7.0)
 
-環境セットアップ後、以下の手順でプロジェクトを開始してください。
-
-## 📥 既存の仕様書がある場合 (Deep Import Flow)
-**手順**:
-1. プロジェクトルートにある `input_docs/` フォルダに、既存の資料を全て入れてください。
-2. 以下のコマンドをチャットに貼り付けてください。
+## 🏛️ Phase 1: Deep Design & Orchestration
+**Antigravity**が全体の設計と、**Claude Code**への並列タスク指示を行います。
 
 ```text
 @Antigravity
-【プロジェクト開始: 既存仕様の完全インポート】
-
-## 🚫 禁止事項 & 監視体制
-- 私は **Quality Guard (tools/validate_docs.js)** を起動してあなたの成果物を監視します。
-- **図解の劣化厳禁**: 元の物理構成図（ASCIIアート等）をそのまま残しつつ、新たにClean Architectureの論理図を追加します。
-- **非機能要件の全移植**: セキュリティ要件、エンコーディング仕様、ログ形式などを一字一句漏らさず移植します。
-- **コードブロック維持**: 構造体定義やSQLクエリ等の技術詳細をそのまま保持します。
-- **ロジック記述の完全移植**: GPS座標処理、音声認識フロー、特定APIの呼び出し手順など、**文章や箇条書きで書かれているロジック・アルゴリズム**についても、要約せず詳細なまま移植してください。
-- **Check**: 「省略」「要約」「図の欠落」があると、バリデーターがエラーを吐き、**作業完了と認められません**。
-- 一発合格を目指して、一言一句漏らさず `docs/design.md` を作成してください。
-
-## 📋 実行タスク
-1. **正規化**: `node tools/normalize_docs.js` を実行。
-2. **全量読込**: `input_docs/` を一字一句読み込む。
-3. **品質検証**: Clean Architecture, DDD違反がないかチェック。
-4. **統合と生成**: `.claw/templates/design_template.md` を使い、ダウングレードなしで生成。
-   - **重要**: 最後に必ず `node tools/validate_docs.js` を実行し、合格すること。
+【プロジェクト開始: オーケストレーション】
+1. input_docs/ から全ての仕様を読み込み docs/design.md を生成してください。
+2. その後、コンポーネントごとに TASKS.md を分割し、Claude Code (CLI) を使って並行実装を開始してください。
+3. 長時間のタスク（20分以上）も制限せず、生存監視を行ってください。
 ```
 
-## 🆕 新規開発の場合 (New Design Flow)
-**手順**: 以下のコマンドをチャットに貼り付けてください。
+## 🧠 Phase 2: Claude Skills Invocation (Deep Work)
+特定のスキルを呼び出す際のコマンドセットです。
 
+### 🛡️ セキュリティ監査 (Security Audit)
 ```text
 @Antigravity
-【プロジェクト開始: 新規設計】
-1. 詳細設計モード(Deep Dive)で進めます。
-2. ヒアリング後、.claw/templates/design_template.md に基づいて docs/design.md を作成してください。
-3. 最後に `node tools/validate_docs.js` を実行し、漏れがないか確認してください。
+Claude Code に Security Review Skills を適用させ、現状のコードの脆弱性を洗い出し、修正させてください。
+CMD: claude -p "Perform a deep security audit on internal/ and implement necessary fixes."
 ```
 
-## ⚙️ プログラム仕様書の作成 (Implementation Prep)
+### 💎 品質リファクタリング (Quality Refactor)
 ```text
 @Antigravity
-【フェーズ移行: プログラム詳細設計】
-1. docs/design.md のバリデーション(`node tools/validate_docs.js`)が通っていることを確認してください。
-2. その後、docs/design.md に基づき、優先度の高いコンポーネントから順にプログラム仕様書を作成してください。
+Claude Code に Refactoring Skills を適用させ、SOLID原則に基づいたコードの洗練を行わせてください。
+CMD: claude -p "Refactor the code in internal/domain/ for perfect SOLID compliance and clean architecture."
 ```
+
+### 🧪 テスト駆動開発 (TDD & Quality Check)
+```text
+@Antigravity
+Claude Code に Testing Skills を適用させ、カバレッジ100%を目指してテストを拡充させてください。
+CMD: claude -p "Increase test coverage to 100% for all components in internal/ and fix any discovered bugs."
+```
+
+## 🕰️ 長時間タスクのルール
+- Claude Code が思考中の場合、Antigravity は途中で強制終了してはいけません。
+- ファイルの更新を 30秒ごとに監視し、動きがある限り継続させます。
+- 終了後、Antigravity が精査し統合します。
