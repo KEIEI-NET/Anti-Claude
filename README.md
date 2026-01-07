@@ -36,11 +36,13 @@ node setup_claw.js
 
 ### 4. プロジェクト開始 (KICKOFF)
 
-環境構築完了後、**`KICKOFF.md`** というファイルが生成されます。
-このファイルを開き、**今の状況に合ったコマンド（プロンプト）をコピーして、チャットに貼り付けてください。**
+環境構築完了後、**`KICKOFF.md`** を開いてください。
+用途に合わせた「開始時のプロンプト」が記載されています。これをAntigravityに送信してください。
 
-* 例: 外部の仕様書を取り込むなら **「ケース 1」**
-* 例: ゼロから設計するなら **「ケース 2」**
+| ケース | 用途 | 手順 |
+| :--- | :--- | :--- |
+| **既存資料あり** | 仕様書やコードを取り込む | 1. 資料を `input_docs/` に入れる<br>2. コマンドをコピペして送信 |
+| **新規開発** | ゼロから作る | コマンドをコピペして送信するだけ |
 
 ---
 
@@ -58,6 +60,7 @@ node setup_claw.js
 │       └── program_spec_template.md  # 📄 プログラム仕様書詳細版 (クラス図/I・O定義)
 ├── docs/
 │   └── specs/                   # 📁 設計書・仕様書の格納先
+├── input_docs/                  # 📥 外部資料投入口 (ここに置くと一括読込される)
 └── tools/
     └── normalize_docs.js        # 🛠️ 文字コード正規化ツール (Shift-JIS対策)
 ```
@@ -66,10 +69,18 @@ node setup_claw.js
 
 ## 📝 機能詳細
 
+### 📥 既存資料の一括インポート (`input_docs/`)
+
+自動生成される `input_docs/` ディレクトリに、仕様書・メモ・ソースコードなどを放り込んでください。
+KICKOFFの手順に従うことで、Antigravityは以下の処理を全自動で行います。
+
+1. **正規化**: 文字コードを判別し、全てUTF-8に変換（バックアップ作成）。
+2. **全読込**: フォルダ内の全ファイルをインプットとして学習。
+3. **理解**: 内容を踏まえた上で、設計や実装の提案を行います。
+
 ### 📐 詳細設計テンプレート (Clean Arch / DDD)
 
 生成されるテンプレートは、**Clean Architecture** のレイヤー構造（Domain, Application, Adapter, Infrastructure）および **DDD** の概念（Context Map, Aggregate）に対応しています。
-Antigravityはこれに従い、フレームワークに依存しない純粋なドメインモデルを優先して設計します。
 
 ### 📝 プログラム仕様書 (Detailed Specs)
 
@@ -77,14 +88,7 @@ Antigravityはこれに従い、フレームワークに依存しない純粋な
 
 * クラス図 (Mermaid)
 * インターフェース定義 (入出力DTO)
-* 非機能要件、エラーハンドリング、テスト戦略
-
-### 🛠️ 自動正規化ツール (Auto-Normalizer)
-
-外部から持ち込まれたファイル（古いShift-JISのテキスト等）は、Antigravityによって自動的に検知・修正されます。
-
-* `node tools/normalize_docs.js`
-* 変換前のファイルは `.bak` としてバックアップされます。
+* テスト戦略
 
 ---
 
@@ -94,22 +98,6 @@ Antigravityはこれに従い、フレームワークに依存しない純粋な
 | :--- | :--- | :--- | :--- | :--- |
 | **Mode 1** | **🚀 Speed Vibe Mode** | 自由 (MVC等) | **速度最優先**。<br>動くものを最速で作る。 | 最小限。<br>走り書きレベル。 |
 | **Mode 2** | **🛡️ Deep Dive Mode** | **Clean Architecture**<br>**DDD** | **堅牢性・保守性優先**。<br>SOLID原則遵守。<br>ドメインロジックの隔離。 | **厳格**。<br>詳細テンプレート準拠。 |
-
----
-
-## 📈 開発ワークフロー (Mode 2)
-
-### Phase 0: Domain Modeling
-
-1. **Import**: `tools/normalize_docs.js` で既存資料を正規化。
-2. **Analysis**: Antigravityが **DDD** に基づきドメインモデルを定義します。
-3. **Spec**: `docs/design.md` (全体) と `docs/specs/[Component].md` (詳細) を作成。
-
-### Phase 1: Implementation (Solid Principles)
-
-1. **Domain Layer**: Claude Codeが依存関係を持たない純粋なドメインロジックを実装。
-2. **Application Layer**: ユースケースの実装。
-3. **Infrastructure**: DB接続やWebフレームワークの実装（DIによる注入）。
 
 ---
 (c) 2026 KEIEI-NET
