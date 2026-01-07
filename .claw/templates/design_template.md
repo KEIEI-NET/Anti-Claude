@@ -1,55 +1,47 @@
-# [Project Name] 詳細設計書 (System Design Document)
+# [Project Name] システム詳細設計書 (System Design Document)
 
 ## 1. プロジェクト概要 (Overview)
 - **目的**: 
 - **対象ユーザー**: 
 - **主要機能**: 
 
-## 2. システムアーキテクチャ (Architecture)
-### 2.1 技術スタック
-- Frontend: 
-- Backend: 
-- Database: 
-- Infra/Cloud: 
+## 2. ドメイン設計 (Domain Design / DDD)
+### 2.1 境界づけられたコンテキスト (Bounded Contexts)
+- **Context A**: ...
+- **Context B**: ...
 
-### 2.2 システム構成図 (Mermaid)
+### 2.2 ドメインモデル (Domain Models)
+```mermaid
+classDiagram
+    class User {
+        +UserId id
+        +UserName name
+        +email changeEmail()
+    }
+```
+
+## 3. システムアーキテクチャ (Clean Architecture)
+### 3.1 レイヤー構成
+- **Presentation Layer**: UI, API Handlers
+- **Application Layer**: UseCases
+- **Domain Layer**: Entities, ValueObjects, Domain Services (No dependencies)
+- **Infrastructure Layer**: DB, External APIs
+
+### 3.2 システム構成図 (Mermaid)
 ```mermaid
 graph TD
-    Client[Client App] --> API[Backend API]
-    API --> DB[(Database)]
+    Client --> Presenter
+    Presenter --> UseCase
+    UseCase --> Domain
+    UseCase --> RepositoryInterface
+    Infrastructure --> RepositoryInterface
 ```
 
-## 3. データモデル設計 (Data Model)
-### 3.1 ER図 (Mermaid)
-```mermaid
-erDiagram
-    USER ||--o{ POST : writes
-```
+## 4. API インターフェース仕様
+...
 
-### 3.2 テーブル定義
-| テーブル名 | 論理名 | 説明 |
-| :--- | :--- | :--- |
-| users | ユーザー | ... |
+## 5. UI/UX 設計
+...
 
-## 4. API インターフェース仕様 (API Specification)
-### 4.1 エンドポイント一覧
-| Method | URI | 概要 | Request | Response |
-| :--- | :--- | :--- | :--- | :--- |
-| GET | /api/v1/users | ユーザー取得 | - | User[] |
-
-## 5. UI/UX 設計 (Interface Design)
-### 5.1 画面遷移図
-- [Screen A] -> [Screen B]
-
-### 5.2 画面詳細
-#### [Screen ID] 画面名
-- **機能**:
-- **UI要素**:
-
-## 6. 非機能要件 (Non-Functional Requirements)
-- **セキュリティ**:
-- **パフォーマンス**: 
-- **可用性**: 
-
----
-*このドキュメントは Claw Template の標準フォーマットに基づいています。*
+## 6. 非機能要件
+...
