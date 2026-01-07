@@ -37,8 +37,79 @@ console.log("\x1b[36m%s\x1b[0m", `
 `);
 
 // ---------------------------------------------------------
-// 📄 Kickoff Prompts (New Feature)
+// 📄 Validation Script (The Quality Guard)
 // ---------------------------------------------------------
+const VALIDATOR_SCRIPT = [
+    "const fs = require('fs');",
+    "const path = require('path');",
+    "",
+    "const TARGET_FILE = path.join(__dirname, '../docs/design.md');",
+    "const REQUIRED_SECTIONS = [",
+    "    '## 1. プロジェクト概要',",
+    "    '## 2. ドメイン設計',",
+    "    '## 3. システムアーキテクチャ',",
+    "    '#### 物理構成図',",
+    "    '#### 論理構成図',",
+    "    '## 4. API インターフェース仕様',",
+    "    '## 5. データモデル',",
+    "    '## 6. 非機能要件',",
+    "    '## 7. エラーハンドリング',",
+    "    '## 8. テスト・移行計画'",
+    "];",
+    "",
+    "const FORBIDDEN_PATTERNS = [",
+    "    { regex: /\\(Original Diagram Here\\)/, message: '物理構成図がプレースホルダーのままです。元の図を転記してください。' },",
+    "    { regex: /\\.\\.\\./, message: '省略記号 \"...\" が残っています。詳細を記述してください。' },",
+    "    { regex: /TODO/, message: '\"TODO\" が残っています。' }",
+    "];",
+    "",
+    "function validate() {",
+    "    if (!fs.existsSync(TARGET_FILE)) {",
+    "        console.error('❌ Error: docs/design.md が見つかりません。');",
+    "        process.exit(1);",
+    "    }",
+    "",
+    "    const content = fs.readFileSync(TARGET_FILE, 'utf-8');",
+    "    let errors = [];",
+    "",
+    "    // 1. Check Required Sections",
+    "    console.log('🔍 Checking for required sections...');",
+    "    REQUIRED_SECTIONS.forEach(section => {",
+    "        if (!content.includes(section)) {",
+    "            errors.push(\`MISSING SECTION: \"\${section}\" が見つかりません。\`);",
+    "        }",
+    "    });",
+    "",
+    "    // 2. Check Forbidden Patterns (Laziness Check)",
+    "    console.log('🔍 Checking for incompleteness...');",
+    "    FORBIDDEN_PATTERNS.forEach(pattern => {",
+    "        if (pattern.regex.test(content)) {",
+    "            errors.push(\`LAZINESS DETECTED: \${pattern.message}\`);",
+    "        }",
+    "    });",
+    "",
+    "    // 3. Check Diagrams",
+    "    const codeBlocks = content.match(/\`\`\`[a-z]*\\n[\\s\\S]*?\`\`\`/g) || [];",
+    "    const mermaidBlocks = codeBlocks.filter(block => block.startsWith('\`\`\`mermaid'));",
+    "    const textBlocks = codeBlocks.filter(block => !block.startsWith('\`\`\`mermaid'));",
+    "",
+    "    if (mermaidBlocks.length < 1) errors.push('MISSING DIAGRAM: Mermaidによる論理構成図がありません。');",
+    "    if (textBlocks.length < 1) errors.push('MISSING DIAGRAM: 物理構成図（ASCIIアート等）が見つかりません。');",
+    "",
+    "    // Result",
+    "    if (errors.length > 0) {",
+    "        console.error('\\n❌ VALIDATION FAILED: ドキュメントの品質基準を満たしていません。');",
+    "        errors.forEach(e => console.error(\` - \${e}\`));",
+    "        console.error('\\n👉 AIへの指示: 上記のエラーを修正してから再提出してください。');",
+    "        process.exit(1);",
+    "    } else {",
+    "        console.log('\\n✅ VALIDATION PASSED: ドキュメント品質は良好です。次のフェーズに進めます。');",
+    "    }",
+    "}",
+    "",
+    "validate();"
+].join('\n');
+
 // ---------------------------------------------------------
 // 📄 Kickoff Prompts (New Feature)
 // ---------------------------------------------------------
@@ -46,37 +117,26 @@ const KICKOFF_CONTENT = `# 🚀 Claw Kickoff Prompts
 
 環境セットアップ後、以下の手順でプロジェクトを開始してください。
 
-## 📥 既存の仕様書がある場合 (Import & Upgrade Flow)
+## 📥 既存の仕様書がある場合 (Deep Import Flow)
 **手順**:
-1. プロジェクトルートにある \`input_docs/\` フォルダに、既存の資料（Markdown, Text, Source Code等）を全て入れてください。
+1. プロジェクトルートにある \`input_docs/\` フォルダに、既存の資料を全て入れてください。
 2. 以下のコマンドをチャットに貼り付けてください。
 
 \`\`\`text
 @Antigravity
-【プロジェクト開始: 既存仕様の完全インポートと品質検証】
+【プロジェクト開始: 既存仕様の完全インポート】
 
-## 🚫 禁止事項 (No Downgrade Policy)
-- 既存資料の内容を「要約」「省略」することは厳禁です。
-- 全ての詳細情報（パラメータ、ロジック、制約条件）を維持してください。
-- **図解の劣化厳禁**: 構成図やフロー図をMermaid化する際、元の図に含まれる「注釈」「プロトコル名」「内部コンポーネントのリスト」などを省略しないでください。
-  - Mermaidで表現しきれず情報が落ちる場合は、**元のASCIIアートや図をそのまま転記**してください。
-- **非機能要件の完全移植**: セキュリティ、エンコーディング、ログ仕様などのリスト項目は、**一つたりとも省略せず**全て移植してください（例: Windowsコンソール対応、HTTPヘッダー種別など）。
-- **コードブロック維持**: 元資料に含まれるデータ構造定義、エラーコード表、設定ファイル例などのコードブロックは、**そのままコピー**して記載してください。
+## 🚫 禁止事項 & 監視体制
+- 私は **Quality Guard (tools/validate_docs.js)** を起動してあなたの成果物を監視します。
+- 「省略」「要約」「図の欠落」があると、バリデーターがエラーを吐き、**作業完了と認められません**。
+- 一発合格を目指して、一言一句漏らさず \`docs/design.md\` を作成してください。
 
 ## 📋 実行タスク
-1. **正規化**: \`node tools/normalize_docs.js\` を実行し、文字コードをUTF-8に統一してください。
-2. **全量読込**: \`input_docs/\` 内の全てのファイルを文字通り「一字一句」読み込んでください。
-3. **品質検証 (Upgrade Check)**:
-   読み込んだ仕様に対し、以下の観点で厳しくチェックを行ってください。
-   - **Clean Architecture違反**: ドメイン層が外部に依存していないか？
-   - **SOLID原則違反**: 単一責任の原則や依存性逆転の原則は守られているか？
-   - **DDD適正**: ドメインモデルは貧血になっていないか？集約の境界は正しいか？
-   - **矛盾点**: 仕様間でコンフリクトはないか？
-
-4. **統合と生成**:
-   - 上記のチェックで見つかった問題点の「修正案」を盛り込みながら、グレードアップした形で \`docs/design.md\` を作成してください。
-   - テンプレートは \`.claw/templates/design_template.md\` を使用し、既存の記述内容は対応するセクションに「詳細なまま」移植してください。
-   - **構成図への注意**: Clean Architectureの図に書き換えるだけでなく、**元の物理構成図や詳細図も必ず併記**して残してください。
+1. **正規化**: \`node tools/normalize_docs.js\` を実行。
+2. **全量読込**: \`input_docs/\` を一字一句読み込む。
+3. **品質検証**: Clean Architecture, DDD違反がないかチェック。
+4. **統合と生成**: \`.claw/templates/design_template.md\` を使い、ダウングレードなしで生成。
+   - **重要**: 最後に必ず \`node tools/validate_docs.js\` を実行し、合格すること。
 \`\`\`
 
 ## 🆕 新規開発の場合 (New Design Flow)
@@ -85,32 +145,17 @@ const KICKOFF_CONTENT = `# 🚀 Claw Kickoff Prompts
 \`\`\`text
 @Antigravity
 【プロジェクト開始: 新規設計】
-1. 詳細設計モード(Deep Dive)で進めます。Clean ArchitectureとDDDを採用します。
-2. まずは私の作りたいアプリの「要件ヒアリング」を開始してください。
-3. ヒアリング後、.claw/templates/design_template.md に基づいて docs/design.md を作成してください。
+1. 詳細設計モード(Deep Dive)で進めます。
+2. ヒアリング後、.claw/templates/design_template.md に基づいて docs/design.md を作成してください。
+3. 最後に \`node tools/validate_docs.js\` を実行し、漏れがないか確認してください。
 \`\`\`
 
 ## ⚙️ プログラム仕様書の作成 (Implementation Prep)
-**手順**: 設計完了後、実装に入る前に実行します。
-
 \`\`\`text
 @Antigravity
 【フェーズ移行: プログラム詳細設計】
-1. docs/design.md の内容に基づき、優先度の高いコンポーネントから順にプログラム仕様書を作成してください。
-2. テンプレートは .claw/templates/program_spec_template.md を厳守すること。
-   - **注意**: テンプレートの項目を勝手に削ったり、内容を簡略化しないこと。
-   - 詳細なクラス図とインターフェース定義が必要です。
-3. まずは [コンポーネント名] の仕様書作成をお願いします。
-\`\`\`
-
-## ⚡ とにかく動くものを作りたい (Speed Vibe Mode)
-**手順**: 
-
-\`\`\`text
-@Antigravity
-【プロジェクト開始: スピード優先】
-1. アプリの概要は「[ここにアイデアを入力]」です。
-2. 面倒な設計書はスキップして、すぐに動くプロトタイプの実装を開始してください。
+1. docs/design.md のバリデーション(\`node tools/validate_docs.js\`)が通っていることを確認してください。
+2. その後、docs/design.md に基づき、優先度の高いコンポーネントから順にプログラム仕様書を作成してください。
 \`\`\`
 `;
 
@@ -458,9 +503,9 @@ const MODES = {
         workflow: `### Phase 0: Domain Analysis & Design 🏛️
 1. **Kickoff**: User sends "Import" or "New Design" command (See KICKOFF.md).
 2. **Normalization**: If importing, Antigravity runs \`node tools/normalize_docs.js\`.
-3. **Domain Modeling**: Antigravity analyzes requirements using **DDD**.
+3. **Quality Check**: Run \`node tools/validate_docs.js\` to ensure design quality.
 4. **Specification**: 
-   - Create \`docs/design.md\`.
+   - Create \`docs/design.md\` (Validated).
    - Create \`docs/specs/[Component].md\`.
 5. **Approval**: User MUST approve models & specs.
 
@@ -504,13 +549,17 @@ const MODES = {
 - **Antigravity**: Architect, Domain Expert, Frontend.
 - **Claude Code**: Backend Implementation (SOLID compliant).
 
-## 3. まずはじめに (Getting Started)
+## 3. 品質保証 (Quality Guard)
+- **validate_docs.js**: \`docs/design.md\` の品質（必須項目の有無、省略の有無）を機械的にチェックします。
+- このチェックを通らない限り、Phase 1 (実装) に進むことはできません。
+
+## 4. まずはじめに (Getting Started)
 **KICKOFF.md を参照し、適切なコマンドをAntigravityに送信してください。**
 
-## 4. ワークフロー
+## 5. ワークフロー
 ${mode.workflow}
 
-## 5. ステータス
+## 6. ステータス
 - **MCP Status**: Active
 - **Template System**: Enabled (Clean Arch/DDD)
 `;
@@ -532,7 +581,8 @@ ${mode.workflow}
         }, null, 2),
         '.claw/templates/design_template.md': DESIGN_TEMPLATE,
         '.claw/templates/program_spec_template.md': PROG_SPEC_TEMPLATE,
-        'tools/normalize_docs.js': NORMALIZE_SCRIPT
+        'tools/normalize_docs.js': NORMALIZE_SCRIPT,
+        'tools/validate_docs.js': VALIDATOR_SCRIPT // ✅ Quality Guard Added
     };
 
     console.log("\n📝 [Step 1/4] Generating configuration & templates...");
@@ -554,7 +604,9 @@ ${mode.workflow}
                 console.log(`  ✅ Created ${filepath}`);
             } else {
                 if (filepath.includes('template') || filepath.includes('tools') || filepath.includes('KICKOFF')) {
-                    console.log(`  ℹ️  ${filepath} exists. Keeping user customization.`);
+                    // Force update for this upgrade
+                    fs.writeFileSync(fullPath, content);
+                    console.log(`  ♻️  Updated ${filepath}`);
                 }
             }
         }
@@ -575,7 +627,7 @@ ${mode.workflow}
         await runCommand('npm install @modelcontextprotocol/sdk zod iconv-lite jschardet --save');
 
         console.log("  ✅ Dependencies ready.");
-        console.log("\n\x1b[32m%s\x1b[0m", "✨ Claw Environment Ready (v4.1)! ✨");
+        console.log("\n\x1b[32m%s\x1b[0m", "✨ Claw Environment Ready (v6.0 with Quality Guard)! ✨");
         console.log(`Current Mode: ${selectedMode.name}`);
         console.log(`🚀 Next Step: Open KICKOFF.md and copy the start command to the chat.`);
         process.exit(0);
